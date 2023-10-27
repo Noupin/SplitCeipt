@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:split_shit/Helpers/Texting.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _counter++;
     });
+    sendTextMessage("Hi from flutter", ["+1-614-580-4679"]);
   }
 
   @override
