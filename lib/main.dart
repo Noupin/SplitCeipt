@@ -225,8 +225,10 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Send Text'),
             ),
             Container(
-              constraints: const BoxConstraints.expand(),
-              child: CameraPreview(_cameraController),
+              child: AspectRatio(
+                aspectRatio: _cameraController.value.aspectRatio,
+                child: CameraPreview(_cameraController),
+              ),
             ),
             SingleChildScrollView(
               child: Padding(
