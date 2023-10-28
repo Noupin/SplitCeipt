@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:split_shit/Helpers/Texting.dart';
 import 'package:camera/camera.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
-import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,92 +35,160 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  //Text box stuff
   String _text = "";
   TextEditingController _controller = TextEditingController();
-  final ValueNotifier<CameraImage> _image = ValueNotifier<CameraImage>(null!);
   // Declare a camera controller and a text detector
+  late CameraImage _image;
+  late bool _isDetecting = false;
+  late TextRecognizer _textRecognizer;
   late CameraController _cameraController;
-  late TextRecognizer _textDetector;
 
   // Declare a variable to store the recognized text
   String _cameraText = '';
+  Widget cameraWidget = Column();
 
   @override
   void initState() {
     super.initState();
-    _image.addListener(_recognizeText);
-    // Initialize the camera controller and the text detector
-    _initializeCamera();
-    _textDetector = GoogleMlKit.vision.textRecognizer();
+
+    // Initialize the camera with the first available camera
+    _requestCameraPermission();
+    // Initialize the text detector
+    _textRecognizer = GoogleMlKit.vision.textRecognizer();
   }
 
   @override
   void dispose() {
-    // Dispose the camera controller and the text detector
     _cameraController.dispose();
-    _textDetector.close();
+    _textRecognizer.close();
+    _controller.dispose();
     super.dispose();
   }
 
-  // Initialize the camera controller with the first available camera
+  Future<void> _requestCameraPermission() async {
+    bool agreed = true;
+    // Request camera permission
+    List<Permission> permissions = [
+      Permission.camera,
+      // Permission.microphone,
+      // Permission.contacts,
+      // Permission.sms,
+      // Permission.systemAlertWindow,
+      // Permission.videos
+    ];
+    try {
+      for (var permission in permissions) {
+        // Check if the permission is already granted or denied
+        if (await permission.status.isDenied ||
+            await permission.status.isPermanentlyDenied) {
+          // Request the permission if it is not granted
+          await permission.request();
+        }
+      }
+    } catch (e) {
+      agreed = false;
+      debugPrint('$e');
+    }
+
+    // Check if camera permission is granted
+    if (agreed) {
+      // Camera permission is granted, initialize the camera
+      _initializeCamera();
+      cameraWidget = Column(
+        children: [
+          // Display the camera preview
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints.expand(),
+              child: CameraPreview(_cameraController),
+            ),
+          ),
+          // Display the detected text
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _text,
+                  style: const TextStyle(fontSize: 16.0),
+                ),
+              ),
+            ),
+          ),
+          Text(_cameraText),
+        ],
+      );
+    } else {
+      // Camera permission is not granted, show a message
+      setState(() {
+        _cameraText = 'Camera permission is required to use this feature.';
+      });
+    }
+  }
+
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
     final firstCamera = cameras.first;
+
     _cameraController = CameraController(
       firstCamera,
       ResolutionPreset.high,
       enableAudio: false,
-      imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21 // for Android
-          : ImageFormatGroup.bgra8888, // for iOS
     );
+
     await _cameraController.initialize();
-    setState(() {});
+
+    // Start streaming images from the camera
+    _cameraController.startImageStream((image) {
+      if (!_isDetecting) {
+        setState(() {
+          _image = image;
+          _isDetecting = true;
+        });
+
+        // Detect text from the image
+        _detectText();
+      }
+    });
   }
 
-  void _getPicture() async {
-    await _cameraController
-        .startImageStream((CameraImage camImage) => {_image.value = camImage});
-  }
-
-  // Recognize text from the camera image stream
-  Future<void> _recognizeText() async {
-    // Get the next camera image
-    await _cameraController
-        .startImageStream((CameraImage camImage) => {_image.value = camImage});
-    // Create an input image from the camera image
+  Future<void> _detectText() async {
+    // Convert the camera image to input image format
     final inputImage = InputImage.fromBytes(
-      bytes: _image.value.planes[0].bytes,
+      bytes: _image.planes[0].bytes,
       metadata: InputImageMetadata(
-        size:
-            Size(_image.value.width.toDouble(), _image.value.height.toDouble()),
+        size: Size(_image.width.toDouble(), _image.height.toDouble()),
         rotation: InputImageRotation.rotation0deg,
-        format: InputImageFormatValue.fromRawValue(_image.value.format.raw)!,
-        bytesPerRow: _image.value.planes.first.bytesPerRow,
+        format: InputImageFormat.yuv420,
+        bytesPerRow: _image.planes[0].bytesPerRow,
       ),
     );
+
     // Process the input image with the text detector
     final RecognizedText recognizedText =
-        await _textDetector.processImage(inputImage);
-    // Concatenate all the text lines into a single string
+        await _textRecognizer.processImage(inputImage);
+
+    // Extract the text from the recognised text
     String text = '';
     for (TextBlock block in recognizedText.blocks) {
       for (TextLine line in block.lines) {
         text += line.text + '\n';
       }
+      text += '\n';
     }
-    // Update the state with the recognized text
+
+    // Update the state with the detected text
     setState(() {
       _cameraText = text;
+      _isDetecting = false;
     });
-    await _cameraController.stopImageStream();
   }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
-    sendTextMessage("Hi from flutter", ["+1-614-580-4679"]);
   }
 
   @override
@@ -156,33 +224,18 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: Text('Send Text'),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Display the camera preview if initialized
-                if (_cameraController.value.isInitialized)
-                  AspectRatio(
-                    aspectRatio: _cameraController.value.aspectRatio,
-                    child: CameraPreview(_cameraController),
-                  )
-                else
-                  CircularProgressIndicator(),
-                SizedBox(height: 20),
-                // Display the recognized text if any
-                if (_text.isNotEmpty)
-                  Text(
-                    'Recognized text:\n$_text',
-                    style: TextStyle(fontSize: 18),
-                  )
-                else
-                  Text('No text recognized'),
-              ],
+            Container(
+              constraints: const BoxConstraints.expand(),
+              child: CameraPreview(_cameraController),
             ),
-            ElevatedButton(
-              onPressed: () {
-                _getPicture();
-              },
-              child: Text('Getpicture'),
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  _cameraText,
+                  style: const TextStyle(fontSize: 16.0),
+                ),
+              ),
             )
           ],
         ),
