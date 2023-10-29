@@ -29,9 +29,9 @@ class ItemModel {
   }
 
   // A method that creates and adds a person to the item's list of people
-  void addNewPerson(String name, String phoneNumber) {
+  void addNewPerson(String firstName, String lastName, String phoneNumber) {
     // Add the person to the item's list of people
-    people.add(PersonModel(name, phoneNumber));
+    people.add(PersonModel(firstName, lastName, phoneNumber));
   }
 
   // A method that removes a person from the item's list of people by their name
