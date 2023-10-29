@@ -67,10 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text('Send Text'),
             ),
             ElevatedButton(
-              child: Text('Go to receipt screen'),
+              child: Text('Go to next screen'),
               onPressed: () {
                 // Navigate to the third screen using a named route.
-                Navigator.pushNamed(context, '/receipt');
+                Navigator.pushNamed(context, '/settings');
               },
             ),
           ],

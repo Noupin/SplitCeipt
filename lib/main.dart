@@ -1,7 +1,12 @@
+//Third Party Imports
 import 'package:flutter/material.dart';
-import 'package:split_shit/Screens/Home.dart';
-import 'package:split_shit/Screens/Receipt.dart';
-import 'package:split_shit/Screens/Settings.dart';
+import 'package:provider/provider.dart';
+
+//First Party Imports
+import 'Screens/Home.dart';
+import 'Screens/Receipt.dart';
+import 'Screens/Settings.dart';
+import 'State.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,18 +17,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'SplitCeipt',
-      theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromRGBO(1, 129, 128, 1.0)),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      // Create an instance of CeiptModel
+      create: (context) => AppState(),
+      child: MaterialApp(
+        title: 'SplitCeipt',
+        theme: ThemeData(
+          colorScheme:
+              ColorScheme.fromSeed(seedColor: Color.fromRGBO(1, 129, 128, 1.0)),
+          useMaterial3: true,
+        ),
+        home: const HomeScreen(title: 'SplitCeipt'),
+        routes: {
+          '/receipt': (context) => ReceiptScreen(),
+          '/settings': (context) => SettingsScreen(),
+        },
       ),
-      home: const HomeScreen(title: 'SplitCeipt'),
-      routes: {
-        '/receipt': (context) => ReceiptScreen(),
-        '/settings': (context) => SettingsScreen(),
-      },
     );
   }
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class Person {
+class PersonModel {
   final String id;
   String name;
   String phone;
 
-  Person(this.name, this.phone) : id = UniqueKey().toString();
+  PersonModel(this.name, this.phone) : id = UniqueKey().toString();
 }

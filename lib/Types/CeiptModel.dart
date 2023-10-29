@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:split_shit/Types/Item.dart';
+import 'package:split_shit/Types/ItemModel.dart';
 
-class Ceipt {
+class CeiptModel {
   final String id;
   String name;
   final DateTime date;
-  final List<Item> items;
+  final List<ItemModel> items;
 
-  Ceipt(this.name, this.items)
+  CeiptModel(this.name, this.items)
       : id = UniqueKey().toString(),
         date = DateTime.now();
 }
