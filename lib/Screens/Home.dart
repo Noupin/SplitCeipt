@@ -2,9 +2,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:split_shit/Screens/Receipt.dart';
 
 // First Party Imports
-import '../State.dart';
+import '../State/State.dart';
 import '../Types/CeiptModel.dart';
 import '../Types/ItemModel.dart';
 import '../Types/PersonModel.dart';
@@ -12,6 +13,7 @@ import '../Types/PersonModel.dart';
 class HomeScreen extends StatelessWidget {
   // A reference to the app state
   AppState appState = AppState();
+  bool postBuildRan = false;
 
   // A method that returns a list of receipts from the app state
   List<CeiptModel> getCeipts() {
@@ -56,7 +58,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // A method that returns a widget that displays a receipt item in a list tile
-  Widget buildCeiptItem(CeiptModel ceipt) {
+  Widget buildCeiptItem(CeiptModel ceipt, BuildContext context) {
     // Format the date of the receipt to a readable string
     String formattedDate = DateFormat.yMMMd().format(ceipt.date);
     // Format the total cost of the receipt to a currency string with two decimal places
@@ -84,14 +86,14 @@ class HomeScreen extends StatelessWidget {
         subtitle: Text(formattedDate),
         trailing: Text(formattedCost),
         onTap: () {
-          print("Tapped receipt ${ceipt.name}");
-          // // Navigate to the receipt detail screen when tapped
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => CeiptDetailScreen(ceipt),
-          //   ),
-          // );
+          appState.setActiveCeiptId(ceipt.id);
+          // Navigate to the receipt detail screen when tapped
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ReceiptScreen(),
+            ),
+          );
         },
       ),
     );
@@ -148,17 +150,48 @@ class HomeScreen extends StatelessWidget {
     appState.addCeipt(movieTheater);
   }
 
+  Future<void> postBuild() async {
+    await Future.delayed(Duration.zero);
+    // this code will get executed after the build method
+    // because of the way async functions are scheduled
+    if (!postBuildRan) {
+      postBuildRan = true;
+      initAppState();
+      print("Build Completed");
+    }
+  }
+
+  // This widget is the second screen of the application.
   @override
   Widget build(BuildContext context) {
+    postBuild();
     appState = Provider.of<AppState>(context);
     // Get the list of recent receipts from the past week
     List<CeiptModel> recentCeipts = getRecentCeipts();
     // Get the list of older receipts from before the past week
     List<CeiptModel> olderCeipts = getOlderCeipts();
+
     // Return a scaffold widget with an app bar and a body
     return Scaffold(
       appBar: AppBar(
-        title: Text('Receipt List'),
+        title: Text('Flutter Demo'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.brightness_4),
+            onPressed: () {
+              // Use the nextTheme method of appState, which is inherited from your AppState class
+              appState.nextTheme(); // AppState: use your nextTheme method here
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.swap_horiz),
+            onPressed: () {
+              // Use the toggleLeftHanded method of appState, which is inherited from your AppState class
+              appState
+                  .toggleLeftHanded(); // AppState: use your toggleLeftHanded method here
+            },
+          ),
+        ],
       ),
       body: SafeArea(
         child: ListView(
@@ -198,20 +231,12 @@ class HomeScreen extends StatelessWidget {
                         // Get the receipt at the index
                         CeiptModel ceipt = recentCeipts[index];
                         // Return a widget that displays the receipt item
-                        return buildCeiptItem(ceipt);
+                        return buildCeiptItem(ceipt, context);
                       },
                     ),
                   ),
                 ],
               ),
-            if (recentCeipts.isEmpty)
-              FloatingActionButton(
-                onPressed: () {
-                  initAppState();
-                },
-                child: Icon(Icons.refresh),
-              ),
-
             // If there are any older receipts, display them in a section with a header
             if (olderCeipts.isNotEmpty)
               Column(
@@ -247,7 +272,7 @@ class HomeScreen extends StatelessWidget {
                         // Get the receipt at the index
                         CeiptModel ceipt = olderCeipts[index];
                         // Return a widget that displays the receipt item
-                        return buildCeiptItem(ceipt);
+                        return buildCeiptItem(ceipt, context);
                       },
                     ),
                   ),

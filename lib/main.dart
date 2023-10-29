@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'Screens/Home.dart';
 import 'Screens/Receipt.dart';
 import 'Screens/Settings.dart';
-import 'State.dart';
+import 'State/State.dart';
 import 'Theme.dart';
 
 void main() {

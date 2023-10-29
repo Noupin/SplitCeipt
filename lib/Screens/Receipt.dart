@@ -142,9 +142,14 @@ class _ReceiptScreenState extends State<ReceiptScreen>
     });
   }
 
+  void afterBuild() {
+    // executes after build is done
+  }
+
   // This widget is the second screen of the application.
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance!.addPostFrameCallback((_) => afterBuild);
     return Scaffold(
       appBar: AppBar(
         title: Text('Second Screen'),

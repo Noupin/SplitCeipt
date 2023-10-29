@@ -3,15 +3,21 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 
 // First Party Imports
-import 'Types/CeiptModel.dart';
-import 'Types/ItemModel.dart';
-import 'Types/PersonModel.dart';
+import '../Types/CeiptModel.dart';
+import '../Types/ItemModel.dart';
+import '../Types/PersonModel.dart';
 
 class AppState extends ChangeNotifier {
   ThemeMode theme = ThemeMode.system;
   bool leftHanded = false;
   Map<String, CeiptModel> ceiptMap = HashMap();
   Map<String, PersonModel> personMap = HashMap();
+  String activeCeiptId = "";
+
+  void setActiveCeiptId(String ceiptId) {
+    activeCeiptId = ceiptId;
+    notifyListeners();
+  }
 
   // Ceipt Methods
   void addCeipt(CeiptModel ceipt) {
