@@ -7,6 +7,7 @@ import 'Screens/Home.dart';
 import 'Screens/Receipt.dart';
 import 'Screens/Settings.dart';
 import 'State.dart';
+import 'Theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,11 +23,7 @@ class MyApp extends StatelessWidget {
       create: (context) => AppState(),
       child: MaterialApp(
         title: 'SplitCeipt',
-        theme: ThemeData(
-          colorScheme:
-              ColorScheme.fromSeed(seedColor: Color.fromRGBO(1, 129, 128, 1.0)),
-          useMaterial3: true,
-        ),
+        theme: customThemeData,
         home: HomeScreen(),
         routes: {
           '/receipt': (context) => ReceiptScreen(),

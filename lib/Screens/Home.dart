@@ -61,22 +61,39 @@ class HomeScreen extends StatelessWidget {
     String formattedDate = DateFormat.yMMMd().format(ceipt.date);
     // Format the total cost of the receipt to a currency string with two decimal places
     String formattedCost = '\$${ceipt.getTotalCost().toStringAsFixed(2)}';
-    // Return a list tile widget with the receipt details
-    return ListTile(
-      leading: Icon(Icons.receipt),
-      title: Text(ceipt.name),
-      subtitle: Text(formattedDate),
-      trailing: Text(formattedCost),
-      onTap: () {
-        print("Tapped ${ceipt.name}");
-        // Navigate to the receipt detail screen when tapped
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => CeiptDetailScreen(ceipt),
-        //   ),
-        // );
+    // Return a Dismissible widget that wraps the list tile widget
+    return Dismissible(
+      // Use the ceipt id as the key for the Dismissible widget
+      key: Key(ceipt.id),
+      // Set the direction to end to start, which means swiping from right to left
+      direction: DismissDirection.endToStart,
+      // Set the background to a red container with a delete icon
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        child: Icon(Icons.delete, color: Colors.white),
+      ),
+      // Provide a function that removes the ceipt from the app state when dismissed
+      onDismissed: (direction) {
+        appState.removeCeipt(ceipt.id);
       },
+      // Use the list tile widget as the child of the Dismissible widget
+      child: ListTile(
+        leading: Icon(Icons.receipt),
+        title: Text(ceipt.name),
+        subtitle: Text(formattedDate),
+        trailing: Text(formattedCost),
+        onTap: () {
+          print("Tapped receipt ${ceipt.name}");
+          // // Navigate to the receipt detail screen when tapped
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => CeiptDetailScreen(ceipt),
+          //   ),
+          // );
+        },
+      ),
     );
   }
 
@@ -161,17 +178,29 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Use a list view builder to create a list of receipt items
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: recentCeipts.length,
-                    itemBuilder: (context, index) {
-                      // Get the receipt at the index
-                      CeiptModel ceipt = recentCeipts[index];
-                      // Return a widget that displays the receipt item
-                      return buildCeiptItem(ceipt);
-                    },
+                  // Use a container widget to create a background for the list
+                  Container(
+                    // Set the margin to create some space around the list
+                    margin: EdgeInsets.all(8.0),
+                    // Set the decoration to customize the color and shape of the background
+                    decoration: BoxDecoration(
+                      // Set the color to an accent color
+                      color: Theme.of(context).colorScheme.secondary,
+                      // Set the border radius to create rounded corners
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    // Use a list view builder to create a list of receipt items
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: recentCeipts.length,
+                      itemBuilder: (context, index) {
+                        // Get the receipt at the index
+                        CeiptModel ceipt = recentCeipts[index];
+                        // Return a widget that displays the receipt item
+                        return buildCeiptItem(ceipt);
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -198,17 +227,29 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Use a list view builder to create a list of receipt items
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: olderCeipts.length,
-                    itemBuilder: (context, index) {
-                      // Get the receipt at the index
-                      CeiptModel ceipt = olderCeipts[index];
-                      // Return a widget that displays the receipt item
-                      return buildCeiptItem(ceipt);
-                    },
+                  // Use a container widget to create a background for the list
+                  Container(
+                    // Set the margin to create some space around the list
+                    margin: EdgeInsets.all(8.0),
+                    // Set the decoration to customize the color and shape of the background
+                    decoration: BoxDecoration(
+                      // Set the color to an accent color
+                      color: Theme.of(context).colorScheme.secondary,
+                      // Set the border radius to create rounded corners
+                      borderRadius: BorderRadius.circular(16.0),
+                    ),
+                    // Use a list view builder to create a list of receipt items
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: olderCeipts.length,
+                      itemBuilder: (context, index) {
+                        // Get the receipt at the index
+                        CeiptModel ceipt = olderCeipts[index];
+                        // Return a widget that displays the receipt item
+                        return buildCeiptItem(ceipt);
+                      },
+                    ),
                   ),
                 ],
               ),
