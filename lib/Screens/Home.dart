@@ -1,85 +1,219 @@
+// Third Party Imports
 import 'package:flutter/material.dart';
-import 'package:split_shit/Helpers/Texting.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, required this.title});
+// First Party Imports
+import '../State.dart';
+import '../Types/CeiptModel.dart';
+import '../Types/ItemModel.dart';
+import '../Types/PersonModel.dart';
 
-  final String title;
+class HomeScreen extends StatelessWidget {
+  // A reference to the app state
+  AppState appState = AppState();
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _counter = 0;
-  //Text box stuff
-  String _text = "";
-  TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
+  // A method that returns a list of receipts from the app state
+  List<CeiptModel> getCeipts() {
+    // Get the map of receipts from the app state
+    Map<String, CeiptModel> ceiptMap = appState.ceiptMap;
+    // Convert the map values to a list of receipts
+    List<CeiptModel> ceipts = ceiptMap.values.toList();
+    // Sort the list of receipts by date in descending order
+    ceipts.sort((a, b) => b.date.compareTo(a.date));
+    // Return the sorted list of receipts
+    return ceipts;
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  // A method that returns a list of receipts from the past week
+  List<CeiptModel> getRecentCeipts() {
+    // Get the current date and time
+    DateTime now = DateTime.now();
+    // Get the date and time one week ago
+    DateTime oneWeekAgo = now.subtract(Duration(days: 7));
+    // Get the list of all receipts
+    List<CeiptModel> ceipts = getCeipts();
+    // Filter the list of receipts by date and keep only those from the past week
+    List<CeiptModel> recentCeipts =
+        ceipts.where((ceipt) => ceipt.date.isAfter(oneWeekAgo)).toList();
+    // Return the filtered list of receipts
+    return recentCeipts;
   }
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  // A method that returns a list of receipts from before the past week
+  List<CeiptModel> getOlderCeipts() {
+    // Get the current date and time
+    DateTime now = DateTime.now();
+    // Get the date and time one week ago
+    DateTime oneWeekAgo = now.subtract(Duration(days: 7));
+    // Get the list of all receipts
+    List<CeiptModel> ceipts = getCeipts();
+    // Filter the list of receipts by date and keep only those from before the past week
+    List<CeiptModel> olderCeipts =
+        ceipts.where((ceipt) => ceipt.date.isBefore(oneWeekAgo)).toList();
+    // Return the filtered list of receipts
+    return olderCeipts;
+  }
+
+  // A method that returns a widget that displays a receipt item in a list tile
+  Widget buildCeiptItem(CeiptModel ceipt) {
+    // Format the date of the receipt to a readable string
+    String formattedDate = DateFormat.yMMMd().format(ceipt.date);
+    // Format the total cost of the receipt to a currency string with two decimal places
+    String formattedCost = '\$${ceipt.getTotalCost().toStringAsFixed(2)}';
+    // Return a list tile widget with the receipt details
+    return ListTile(
+      leading: Icon(Icons.receipt),
+      title: Text(ceipt.name),
+      subtitle: Text(formattedDate),
+      trailing: Text(formattedCost),
+      onTap: () {
+        print("Tapped ${ceipt.name}");
+        // Navigate to the receipt detail screen when tapped
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => CeiptDetailScreen(ceipt),
+        //   ),
+        // );
+      },
+    );
+  }
+
+  void initAppState() {
+    PersonModel alice = PersonModel('Alice', "smith", '111-1111');
+    PersonModel bob = PersonModel('Bob', "choo", '222-2222');
+    PersonModel charlie = PersonModel('Charlie', "boi", '333-3333');
+
+// Add the people to the app state
+    appState.addPerson(alice);
+    appState.addPerson(bob);
+    appState.addPerson(charlie);
+
+// Create some receipts with their names and items
+    // Create some receipts with their names and items
+    CeiptModel groceryStore = CeiptModel(
+      'Grocery Store',
+      [
+        ItemModel('Milk', 2.99, [alice]),
+        ItemModel('Eggs', 1.99, [bob]),
+        ItemModel('Bread', 2.49, [charlie]),
+        ItemModel('Cheese', 3.49, [alice, bob]),
+        ItemModel('Apples', 1.38, [bob, charlie]),
+      ],
+    );
+
+    CeiptModel restaurant = CeiptModel(
+      'Restaurant',
+      [
+        ItemModel('Pizza', 12.99, [alice, bob, charlie]),
+        ItemModel('Salad', 4.99, [alice]),
+        ItemModel('Soda', 2.50, [bob]),
+        ItemModel('Cake', 4.19, [charlie]),
+        ItemModel('Tip', 5.00, [alice, bob, charlie]),
+        ItemModel('Tax', 1.80, [alice, bob, charlie]),
+      ],
+    );
+
+    CeiptModel movieTheater = CeiptModel(
+      'Movie Theater',
+      [
+        ItemModel('Ticket', 10.00, [alice]),
+        ItemModel('Popcorn', 3.00, [bob]),
+        ItemModel('Candy', 1.00, [charlie]),
+        ItemModel('Soda', 1.00, [alice, bob]),
+      ],
+    );
+
+// Add the receipts to the app state
+    appState.addCeipt(groceryStore);
+    appState.addCeipt(restaurant);
+    appState.addCeipt(movieTheater);
   }
 
   @override
   Widget build(BuildContext context) {
+    appState = Provider.of<AppState>(context);
+    // Get the list of recent receipts from the past week
+    List<CeiptModel> recentCeipts = getRecentCeipts();
+    // Get the list of older receipts from before the past week
+    List<CeiptModel> olderCeipts = getOlderCeipts();
+    // Return a scaffold widget with an app bar and a body
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
+        title: Text('Receipt List'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            TextField(
-              controller: _controller,
-              onChanged: (value) {
-                // Call setState to update the text input value
-                setState(() {
-                  _text = value;
-                });
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                sendTextMessage("Hello from flutter!", [_text]);
-              },
-              child: Text('Send Text'),
-            ),
-            ElevatedButton(
-              child: Text('Go to next screen'),
-              onPressed: () {
-                // Navigate to the third screen using a named route.
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            // If there are any recent receipts, display them in a section with a header
+            if (recentCeipts.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Past Week',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Use a list view builder to create a list of receipt items
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: recentCeipts.length,
+                    itemBuilder: (context, index) {
+                      // Get the receipt at the index
+                      CeiptModel ceipt = recentCeipts[index];
+                      // Return a widget that displays the receipt item
+                      return buildCeiptItem(ceipt);
+                    },
+                  ),
+                ],
+              ),
+            if (recentCeipts.isEmpty)
+              FloatingActionButton(
+                onPressed: () {
+                  initAppState();
+                },
+                child: Icon(Icons.refresh),
+              ),
+
+            // If there are any older receipts, display them in a section with a header
+            if (olderCeipts.isNotEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text(
+                      'Older',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Use a list view builder to create a list of receipt items
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: olderCeipts.length,
+                    itemBuilder: (context, index) {
+                      // Get the receipt at the index
+                      CeiptModel ceipt = olderCeipts[index];
+                      // Return a widget that displays the receipt item
+                      return buildCeiptItem(ceipt);
+                    },
+                  ),
+                ],
+              ),
           ],
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
       ),
     );
   }

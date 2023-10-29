@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
               ColorScheme.fromSeed(seedColor: Color.fromRGBO(1, 129, 128, 1.0)),
           useMaterial3: true,
         ),
-        home: const HomeScreen(title: 'SplitCeipt'),
+        home: HomeScreen(),
         routes: {
           '/receipt': (context) => ReceiptScreen(),
           '/settings': (context) => SettingsScreen(),
