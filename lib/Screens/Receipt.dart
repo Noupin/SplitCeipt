@@ -1,8 +1,11 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:google_ml_kit/google_ml_kit.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:split_shit/Widgets/Camera.dart';
+import 'package:provider/provider.dart';
+import 'package:split_shit/State/State.dart';
+import 'package:split_shit/Types/ItemModel.dart';
+import 'package:split_shit/Types/PersonModel.dart';
+import 'package:split_shit/Widgets/CeiptListItem.dart';
+
+import '../Helpers/Color.dart';
 
 class ReceiptScreen extends StatefulWidget {
   // This widget is the first screen of the application.
@@ -12,192 +15,100 @@ class ReceiptScreen extends StatefulWidget {
 
 class _ReceiptScreenState extends State<ReceiptScreen>
     with SingleTickerProviderStateMixin {
-  // This state object manages the animation controller and the camera controller.
-  late AnimationController _animationController;
-  // Declare a camera controller and a text detector
-  late CameraImage _image;
-  late bool _isDetecting = false;
-  late TextRecognizer _textRecognizer;
-  late CameraController _cameraController;
+  // A reference to the app state
+  AppState appState = AppState();
+  bool postBuildRan = false;
 
-  // Declare a variable to store the recognized text
-  String _cameraText = '';
+  // A list of sample initials
+  final List<String> initials = [];
+  final List<String> peopleAlreadyAdded = [];
 
-  @override
-  void initState() {
-    super.initState();
-    // Initialize the animation controller with a duration of one second.
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 1),
-    );
-    // Initialize the camera with the first available camera
-    _requestCameraPermission();
-    // Initialize the text detector
-    _textRecognizer = GoogleMlKit.vision.textRecognizer();
-    _animationController.reverse();
-  }
-
-  @override
-  void dispose() {
-    // Dispose the animation controller and the camera controller when not needed.
-    _animationController.dispose();
-    _cameraController.dispose();
-    _textRecognizer.close();
-    super.dispose();
-  }
-
-  Future<void> _requestCameraPermission() async {
-    bool agreed = true;
-    // Request camera permission
-    List<Permission> permissions = [
-      Permission.camera,
-      // Permission.microphone,
-      // Permission.contacts,
-      // Permission.sms,
-      // Permission.systemAlertWindow,
-      // Permission.videos
-    ];
-    try {
-      for (var permission in permissions) {
-        // Check if the permission is already granted or denied
-        if (await permission.status.isDenied ||
-            await permission.status.isPermanentlyDenied) {
-          // Request the permission if it is not granted
-          await permission.request();
+  void getInitials() {
+    for (ItemModel item in appState.getCeipt(appState.activeCeiptId).items) {
+      for (PersonModel person in item.people) {
+        if (peopleAlreadyAdded.contains(person.id)) {
+          continue;
         }
-      }
-    } catch (e) {
-      agreed = false;
-      debugPrint('$e');
-    }
-
-    // Check if camera permission is granted
-    if (agreed) {
-      // Camera permission is granted, initialize the camera
-      _initializeCamera();
-    } else {
-      // Camera permission is not granted, show a message
-      setState(() {
-        _cameraText = 'Camera permission is required to use this feature.';
-      });
-    }
-  }
-
-  Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
-    final firstCamera = cameras.first;
-
-    _cameraController = CameraController(
-      firstCamera,
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-
-    await _cameraController.initialize();
-
-    // Start streaming images from the camera
-    _cameraController.startImageStream((image) {
-      if (!_isDetecting) {
         setState(() {
-          _image = image;
-          _isDetecting = true;
+          initials.add(
+              '${person.firstName[0].toUpperCase()}${person.lastName[0].toUpperCase()}');
         });
-
-        // Detect text from the image
-        _detectText();
+        peopleAlreadyAdded.add(person.id);
       }
-    });
-  }
-
-  Future<void> _detectText() async {
-    // Convert the camera image to input image format
-    final inputImage = InputImage.fromBytes(
-      bytes: _image.planes[0].bytes,
-      metadata: InputImageMetadata(
-        size: Size(_image.width.toDouble(), _image.height.toDouble()),
-        rotation: InputImageRotation.rotation0deg,
-        format: InputImageFormat.yuv420,
-        bytesPerRow: _image.planes[0].bytesPerRow,
-      ),
-    );
-
-    // Process the input image with the text detector
-    final RecognizedText recognizedText =
-        await _textRecognizer.processImage(inputImage);
-
-    // Extract the text from the recognised text
-    String text = '';
-    for (TextBlock block in recognizedText.blocks) {
-      for (TextLine line in block.lines) {
-        text += line.text + '\n';
-      }
-      text += '\n';
     }
-
-    // Update the state with the detected text
-    setState(() {
-      _cameraText = text;
-      _isDetecting = false;
-    });
   }
 
-  void afterBuild() {
-    // executes after build is done
+  Future<void> postBuild() async {
+    await Future.delayed(Duration.zero);
+    // this code will get executed after the build method
+    // because of the way async functions are scheduled
+    if (!postBuildRan) {
+      postBuildRan = true;
+      getInitials();
+      print("Build Completed");
+    }
   }
 
   // This widget is the second screen of the application.
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) => afterBuild);
+    postBuild();
+    appState = Provider.of<AppState>(context);
+    print(appState.getCeipt(appState.activeCeiptId).items.length);
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Second Screen'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'This is the receipt screen.',
-            ),
-            ElevatedButton(
-              child: Text('Go to settings screen'),
-              onPressed: () {
-                // Navigate to the third screen using a named route.
-                Navigator.pushNamed(context, '/settings');
-              },
-            ),
-            ElevatedButton(
-              child: Text('Slide up/down'),
-              onPressed: () {
-                // Toggle the animation controller between forward and reverse states.
-                if (_animationController.isCompleted) {
-                  _animationController.reverse();
-                } else {
-                  _animationController.forward();
-                }
-              },
-            ),
-            // Use an animated builder to create a sliding animation for the camera widget.
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(
-                      0,
-                      -_animationController.value *
-                          MediaQuery.of(context).size.height /
-                          2),
-                  child: child,
-                );
-              },
-              // Use the custom widget to display the camera preview and the text.
-              child: CameraWidget(_cameraController, _cameraText),
-            ),
-          ],
+        appBar: AppBar(
+          title: Text('List and Grid Example'),
         ),
-      ),
-    );
+        body: SafeArea(
+          child: Column(
+            children: [
+              // The top two-thirds of the screen is a ListView
+              Expanded(
+                flex: 2,
+                child: ListView.builder(
+                  itemCount: 1,
+                  itemBuilder: (context, index) {
+                    return buildCeiptItemWithPeople(
+                        appState.getCeipt(appState.activeCeiptId));
+                  },
+                ),
+              ),
+              // The bottom third of the screen is a GridView
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  // To add some top padding to the grid view
+                  padding: EdgeInsets.only(top: 20),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // The number of columns in the grid
+                    ),
+                    itemCount: initials.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.all(
+                            15), // To add some spacing around the circles
+                        decoration: BoxDecoration(
+                          shape:
+                              BoxShape.circle, // To make the container circular
+                          color:
+                              randomColor(), // The background color of the circle
+                        ),
+                        child: Text(
+                          initials[index], // The text inside the circle
+                          style: TextStyle(
+                            color: Colors.white, // The color of the text
+                            fontSize: 25, // The size of the text
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
