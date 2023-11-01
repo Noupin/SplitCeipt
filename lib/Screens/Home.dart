@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:split_shit/Helpers/Color.dart';
 
 // First Party Imports
 import '../State/State.dart';
@@ -234,14 +235,22 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void initAppState() {
-    PersonModel alice = PersonModel('Alice', "smith", '111-1111');
-    PersonModel bob = PersonModel('Bob', "choo", '222-2222');
-    PersonModel charlie = PersonModel('Charlie', "boi", '333-3333');
+    PersonModel alice =
+        PersonModel('Alice', "smith", '111-1111', randomColor());
+    PersonModel bob = PersonModel('Bob', "choo", '222-2222', randomColor());
+    PersonModel charlie =
+        PersonModel('Charlie', "boi", '333-3333', randomColor());
+    PersonModel joe = PersonModel('Joe', "K", '111-1111', randomColor());
+    PersonModel buck = PersonModel('Buck', "F", '222-2222', randomColor());
+    PersonModel anna = PersonModel('Anna', "a", '333-3333', randomColor());
 
 // Add the people to the app state
     appState.addPerson(alice);
     appState.addPerson(bob);
     appState.addPerson(charlie);
+    appState.addPerson(joe);
+    appState.addPerson(buck);
+    appState.addPerson(anna);
 
 // Create some receipts with their names and items
     // Create some receipts with their names and items
@@ -249,9 +258,9 @@ class _HomeScreenState extends State<HomeScreen>
       'Grocery Store',
       [
         ItemModel('Milk', 2.99, [alice]),
-        ItemModel('Eggs', 1.99, [bob]),
+        ItemModel('Eggs', 1.99, [bob, joe, buck]),
         ItemModel('Bread', 2.49, [charlie]),
-        ItemModel('Cheese', 3.49, [alice, bob]),
+        ItemModel('Cheese', 3.49, [alice, bob, anna, joe]),
         ItemModel('Apples', 1.38, [bob, charlie]),
       ],
     );

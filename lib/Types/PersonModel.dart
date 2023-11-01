@@ -5,8 +5,9 @@ class PersonModel {
   String firstName;
   String lastName;
   String phone;
+  Color color;
 
-  PersonModel(this.firstName, this.lastName, this.phone)
+  PersonModel(this.firstName, this.lastName, this.phone, this.color)
       : id = UniqueKey().toString();
 
   // A method that changes the person's first name
@@ -31,6 +32,11 @@ class PersonModel {
   String getFullName() {
     // Return a string with the person's first name and last name separated by a space
     return '$firstName $lastName';
+  }
+
+  String getInitials() {
+    // Return the first letter of the first name and last name
+    return '${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}';
   }
 
   // A method that returns a string representation of the person
