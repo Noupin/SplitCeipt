@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:split_shit/State/State.dart';
 import 'package:split_shit/Types/ItemModel.dart';
 import 'package:split_shit/Types/PersonModel.dart';
-import 'package:split_shit/Helpers/Color.dart';
 import 'package:split_shit/Types/CeiptModel.dart';
 
 class ReceiptScreen extends StatefulWidget {
@@ -144,6 +143,9 @@ class _ReceiptScreenState extends State<ReceiptScreen>
               ),
               onTap: () {
                 if (filterPeopleByItem.isEmpty) {
+                  if (filterItemsByPerson.isNotEmpty) {
+                    return;
+                  }
                   setState(() => filterPeopleByItem = item.id);
                 } else {
                   setState(() => filterPeopleByItem = "");
@@ -222,6 +224,9 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                           ),
                           onTap: () {
                             if (filterItemsByPerson.isEmpty) {
+                              if (filterPeopleByItem.isNotEmpty) {
+                                return;
+                              }
                               setState(() => filterItemsByPerson =
                                   appState.personMap[initialIds[index]]!.id);
                             } else {
