@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:split_shit/Helpers/Color.dart';
 import 'package:split_shit/State/State.dart';
 import 'package:split_shit/Types/ItemModel.dart';
 import 'package:split_shit/Types/PersonModel.dart';
@@ -203,19 +204,24 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3, // The number of columns in the grid
                     ),
-                    itemCount: filteredIds.length,
+                    itemCount: initialIds.length,
                     itemBuilder: (context, index) {
+                      Color color =
+                          appState.personMap[initialIds[index]]!.color;
+                      if (!filteredIds.contains(initialIds[index])) {
+                        color = desaturate(color, 0.4, 0.5);
+                      }
                       return ListTile(
                           title: Container(
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               shape: BoxShape
                                   .circle, // To make the container circular
-                              color: appState.personMap[filteredIds[index]]!
-                                  .color, // The background color of the circle
+                              color:
+                                  color, // The background color of the circle
                             ),
                             child: Text(
-                              appState.personMap[filteredIds[index]]!
+                              appState.personMap[initialIds[index]]!
                                   .getInitials(), // The text inside the circle
                               style: TextStyle(
                                 color: Colors.white, // The color of the text
@@ -228,6 +234,18 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                                 !appState.personMap[initialIds[index]]!.id
                                     .contains(filterItemsByPerson)) {
                               if (filterPeopleByItem.isNotEmpty) {
+                                if (!filteredIds.contains(initialIds[index])) {
+                                  setState(() {
+                                    appState
+                                        .getCeipt(appState.activeCeiptId)
+                                        .items
+                                        .where((element) => element.id
+                                            .contains(filterPeopleByItem))
+                                        .first
+                                        .addPerson(appState
+                                            .personMap[initialIds[index]]!);
+                                  });
+                                }
                                 return;
                               }
                               setState(() => filterItemsByPerson =

@@ -14,3 +14,12 @@ Color randomColor() {
   // Return a color with the generated values
   return Color.fromARGB(255, r, g, b);
 }
+
+Color desaturate(Color color, double amount, double opacity) {
+  // Convert the color to HSL color space
+  HSLColor hsl = HSLColor.fromColor(color);
+  // Reduce the saturation by the given amount, ensuring it doesn't drop below 0
+  double newSaturation = (hsl.saturation - amount).clamp(0.0, 1.0);
+  // Return the new color with the modified saturation
+  return hsl.withSaturation(newSaturation).toColor().withOpacity(opacity);
+}
