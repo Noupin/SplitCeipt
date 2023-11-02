@@ -142,7 +142,8 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                 ],
               ),
               onTap: () {
-                if (filterPeopleByItem.isEmpty) {
+                if (filterPeopleByItem.isEmpty ||
+                    !item.id.contains(filterPeopleByItem)) {
                   if (filterItemsByPerson.isNotEmpty) {
                     return;
                   }
@@ -210,11 +211,11 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                             decoration: BoxDecoration(
                               shape: BoxShape
                                   .circle, // To make the container circular
-                              color: appState.personMap[initialIds[index]]!
+                              color: appState.personMap[filteredIds[index]]!
                                   .color, // The background color of the circle
                             ),
                             child: Text(
-                              appState.personMap[initialIds[index]]!
+                              appState.personMap[filteredIds[index]]!
                                   .getInitials(), // The text inside the circle
                               style: TextStyle(
                                 color: Colors.white, // The color of the text
@@ -223,7 +224,9 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                             ),
                           ),
                           onTap: () {
-                            if (filterItemsByPerson.isEmpty) {
+                            if (filterItemsByPerson.isEmpty ||
+                                !appState.personMap[initialIds[index]]!.id
+                                    .contains(filterItemsByPerson)) {
                               if (filterPeopleByItem.isNotEmpty) {
                                 return;
                               }
