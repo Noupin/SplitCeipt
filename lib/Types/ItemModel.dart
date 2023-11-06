@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:split_shit/Types/PersonModel.dart';
+import 'package:split_ceipt/Types/PersonModel.dart';
 
 // A class that represents an item with a name, a cost, and a list of people
 class ItemModel {

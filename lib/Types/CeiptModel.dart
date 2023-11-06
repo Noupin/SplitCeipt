@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
 // Third Party Imports
-import 'package:split_shit/Types/ItemModel.dart';
-import 'package:split_shit/Types/PersonModel.dart';
+import 'package:split_ceipt/Types/ItemModel.dart';
+import 'package:split_ceipt/Types/PersonModel.dart';
 
 class CeiptModel {
   final String id;

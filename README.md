@@ -1,4 +1,4 @@
-# split_shit
+# split_ceipt
 
 A new Flutter project.
 

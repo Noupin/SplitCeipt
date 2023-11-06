@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:split_shit/Helpers/Color.dart';
-import 'package:split_shit/State/State.dart';
-import 'package:split_shit/Types/CeiptModel.dart';
-import 'package:split_shit/Types/ItemModel.dart';
-import 'package:split_shit/Types/PersonModel.dart';
+import 'package:split_ceipt/Helpers/Color.dart';
+import 'package:split_ceipt/State/State.dart';
+import 'package:split_ceipt/Types/CeiptModel.dart';
+import 'package:split_ceipt/Types/ItemModel.dart';
+import 'package:split_ceipt/Types/PersonModel.dart';
 
 // A method that returns a widget that displays a receipt item with people circles
 Widget buildCeiptItemWithPeople(CeiptModel ceipt, AppState appState) {

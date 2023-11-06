@@ -1,4 +1,4 @@
-package com.example.split_shit
+package com.example.split_ceipt
 
 import io.flutter.embedding.android.FlutterActivity
 
