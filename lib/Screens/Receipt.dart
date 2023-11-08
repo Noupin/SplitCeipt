@@ -199,68 +199,86 @@ class _ReceiptScreenState extends State<ReceiptScreen>
     if (filterItemsByPerson.isNotEmpty) {
       PersonModel person = appState.getPerson(filterItemsByPerson);
       // Return a card widget with some properties
-      return Expanded(
-          child: InkWell(
-        child: Card(
-          // Set the color of the card to white
-          color: Colors.white,
-          // Set the shape of the card to rounded rectangle with 10 pixels radius
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          // Set the margin of the card to 10 pixels on all sides
-          margin: EdgeInsets.all(10.0),
-          // Set the elevation of the card to 5 pixels
-          elevation: 5.0,
-          // Set the child of the card to a column widget
-          child: Column(
-            // Use mainAxisAlignment to align the widgets to the center
-            mainAxisAlignment: MainAxisAlignment.center,
-            // Use crossAxisAlignment to stretch the widgets to fill the horizontal space
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            // Use children to add the widgets as a list
-            children: [
-              // Add a circle avatar widget as the first child of the column
-              CircleAvatar(
-                // Set the background color of the circle avatar to the person's color
-                backgroundColor: person.color,
-                // Set the child of the circle avatar to a text widget
+      return // Use a column widget to arrange the widgets vertically
+          Expanded(
+              child: Column(
+        // Use mainAxisAlignment to align the widgets to the center
+        mainAxisAlignment: MainAxisAlignment.center,
+        // Use crossAxisAlignment to stretch the widgets to fill the horizontal space
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        // Use children to add the widgets as a list
+        children: [
+          // Add the InkWell widget as the first child
+          Expanded(
+              child: InkWell(
+            child: Card(
+              // Set the color of the card to white
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                // Use border side to set the border color and width
+                side: BorderSide(
+                  color: Colors.black26,
+                  width: 2.0,
+                ),
+              ),
+              // Set the margin of the card to 10 pixels on all sides
+              margin: EdgeInsets.all(10.0),
+              // Set the child of the card to a center widget
+              child: Center(
+                // Set the child of the center widget to a column widget
                 child: Padding(
-                    padding: EdgeInsets.all(25.0),
-                    child: Text(
-                      // Set the text of the text widget to the person's initials
-                      person.getInitials(),
-                      // Set the style of the text widget to white and large font size
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.0,
-                      ),
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      // Use mainAxisAlignment to align the widgets to the center
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      // Use crossAxisAlignment to center the widgets horizontally
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      // Use children to add the widgets as a list
+                      children: [
+                        // Add a circle avatar widget as the first child of the column
+                        CircleAvatar(
+                          // Set the background color of the circle avatar to the person's color
+                          backgroundColor: person.color,
+                          minRadius: 45.0,
+                          // Set the child of the circle avatar to a text widget
+                          child: Text(
+                            // Set the text of the text widget to the person's initials
+                            person.getInitials(),
+                            // Set the style of the text widget to white and large font size
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 40.0,
+                            ),
+                          ),
+                        ),
+                        // Add a text widget as the second child of the column
+                        Text(
+                          // Set the text of the text widget to the person's full name
+                          person.getFullName(),
+                          // Set the style of the text widget to black and bold font weight
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        // Add a text widget as the third child of the column
+                        Text(
+                          // Set the text of the text widget to the person's phone number
+                          person.phone,
+                          // Set the style of the text widget to gray and small font size
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12.0,
+                          ),
+                        ),
+                      ],
                     )),
               ),
-              // Add a text widget as the second child of the column
-              Text(
-                // Set the text of the text widget to the person's full name
-                person.getFullName(),
-                // Set the style of the text widget to black and bold font weight
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              // Add a text widget as the third child of the column
-              Text(
-                // Set the text of the text widget to the person's phone number
-                person.phone,
-                // Set the style of the text widget to gray and small font size
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12.0,
-                ),
-              ),
-            ],
-          ),
-        ),
-        onTap: () => {setState(() => filterItemsByPerson = "")},
+            ),
+            onTap: () => {setState(() => filterItemsByPerson = "")},
+          ))
+        ],
       ));
     } else {
       return Expanded(
