@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:split_ceipt/Helpers/Color.dart';
 import 'package:split_ceipt/State/State.dart';
+import 'package:split_ceipt/Theme.dart';
 import 'package:split_ceipt/Types/ItemModel.dart';
 import 'package:split_ceipt/Types/PersonModel.dart';
 import 'package:split_ceipt/Types/CeiptModel.dart';
@@ -78,12 +79,19 @@ class _ReceiptScreenState extends State<ReceiptScreen>
           .toList();
     }
 
+    if (filterPeopleByItem.isNotEmpty) {
+      filteredItems = filteredItems
+          .where((item) => item.id.contains(filterPeopleByItem))
+          .toList();
+    }
+
     // Return a list tile widget with the receipt details
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       key: Key(filteredIds.toString()),
       children: [
-        for (ItemModel item in ceipt.items) // Add a closing parenthesis here
+        for (ItemModel item in (filterPeopleByItem.isNotEmpty
+            ? filteredItems
+            : ceipt.items)) // Add a closing parenthesis here
           // Use a column widget to display the item name and the people circles
           Dismissible(
             key: Key(item.id),
@@ -98,12 +106,19 @@ class _ReceiptScreenState extends State<ReceiptScreen>
               appState.removeItem(ceipt.id, item.id),
               getInitials(),
             },
-            child: ColorFiltered(
-                colorFilter: filteredItems
-                        .map((element) => element.id)
-                        .contains(item.id)
-                    ? ColorFilter.mode(Colors.transparent, BlendMode.saturation)
-                    : ColorFilter.mode(Colors.white, BlendMode.saturation),
+            child: Container(
+                padding: const EdgeInsets.all(2.0),
+                margin: const EdgeInsets.fromLTRB(
+                    10, 2, 10, 2), // Set the padding amount
+                decoration: BoxDecoration(
+                  color: filteredItems
+                          .map((element) => element.id)
+                          .contains(item.id)
+                      ? Colors.transparent
+                      : Colors.black.withOpacity(0.35),
+                  borderRadius:
+                      BorderRadius.circular(12.0), // Set the corner radius
+                ),
                 child: ListTile(
                   title: Row(
                     children: [
@@ -201,85 +216,87 @@ class _ReceiptScreenState extends State<ReceiptScreen>
       // Return a card widget with some properties
       return // Use a column widget to arrange the widgets vertically
           Expanded(
-              child: Column(
-        // Use mainAxisAlignment to align the widgets to the center
-        mainAxisAlignment: MainAxisAlignment.center,
-        // Use crossAxisAlignment to stretch the widgets to fill the horizontal space
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        // Use children to add the widgets as a list
-        children: [
-          // Add the InkWell widget as the first child
-          Expanded(
-              child: InkWell(
-            child: Card(
-              // Set the color of the card to white
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                // Use border side to set the border color and width
-                side: BorderSide(
-                  color: Colors.black26,
-                  width: 2.0,
-                ),
-              ),
-              // Set the margin of the card to 10 pixels on all sides
-              margin: EdgeInsets.all(10.0),
-              // Set the child of the card to a center widget
-              child: Center(
-                // Set the child of the center widget to a column widget
-                child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      // Use mainAxisAlignment to align the widgets to the center
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // Use crossAxisAlignment to center the widgets horizontally
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      // Use children to add the widgets as a list
-                      children: [
-                        // Add a circle avatar widget as the first child of the column
-                        CircleAvatar(
-                          // Set the background color of the circle avatar to the person's color
-                          backgroundColor: person.color,
-                          minRadius: 45.0,
-                          // Set the child of the circle avatar to a text widget
-                          child: Text(
-                            // Set the text of the text widget to the person's initials
-                            person.getInitials(),
-                            // Set the style of the text widget to white and large font size
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 40.0,
+              child: Padding(
+                  padding: const EdgeInsets.all(16.0), // Set the padding amount
+                  child: Column(
+                    // Use mainAxisAlignment to align the widgets to the center
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // Use crossAxisAlignment to stretch the widgets to fill the horizontal space
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    // Use children to add the widgets as a list
+                    children: [
+                      // Add the InkWell widget as the first child
+                      Expanded(
+                          child: InkWell(
+                        child: Card(
+                          // Set the color of the card to white
+                          color: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            // Use border side to set the border color and width
+                            side: BorderSide(
+                              color: Colors.black26,
+                              width: 2.0,
                             ),
                           ),
-                        ),
-                        // Add a text widget as the second child of the column
-                        Text(
-                          // Set the text of the text widget to the person's full name
-                          person.getFullName(),
-                          // Set the style of the text widget to black and bold font weight
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
+                          // Set the margin of the card to 10 pixels on all sides
+                          margin: EdgeInsets.all(10.0),
+                          // Set the child of the card to a center widget
+                          child: Center(
+                            // Set the child of the center widget to a column widget
+                            child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  // Use mainAxisAlignment to align the widgets to the center
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  // Use crossAxisAlignment to center the widgets horizontally
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  // Use children to add the widgets as a list
+                                  children: [
+                                    // Add a circle avatar widget as the first child of the column
+                                    CircleAvatar(
+                                      // Set the background color of the circle avatar to the person's color
+                                      backgroundColor: person.color,
+                                      minRadius: 45.0,
+                                      // Set the child of the circle avatar to a text widget
+                                      child: Text(
+                                        // Set the text of the text widget to the person's initials
+                                        person.getInitials(),
+                                        // Set the style of the text widget to white and large font size
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 40.0,
+                                        ),
+                                      ),
+                                    ),
+                                    // Add a text widget as the second child of the column
+                                    Text(
+                                      // Set the text of the text widget to the person's full name
+                                      person.getFullName(),
+                                      // Set the style of the text widget to black and bold font weight
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    // Add a text widget as the third child of the column
+                                    Text(
+                                      // Set the text of the text widget to the person's phone number
+                                      person.phone,
+                                      // Set the style of the text widget to gray and small font size
+                                      style: TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 12.0,
+                                      ),
+                                    ),
+                                  ],
+                                )),
                           ),
                         ),
-                        // Add a text widget as the third child of the column
-                        Text(
-                          // Set the text of the text widget to the person's phone number
-                          person.phone,
-                          // Set the style of the text widget to gray and small font size
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12.0,
-                          ),
-                        ),
-                      ],
-                    )),
-              ),
-            ),
-            onTap: () => {setState(() => filterItemsByPerson = "")},
-          ))
-        ],
-      ));
+                        onTap: () => {setState(() => filterItemsByPerson = "")},
+                      ))
+                    ],
+                  )));
     } else {
       return Expanded(
         flex: 1,
@@ -373,19 +390,31 @@ class _ReceiptScreenState extends State<ReceiptScreen>
         appBar: AppBar(
           title: Text('List and Grid Example'),
         ),
+        backgroundColor: customThemeData.colorScheme.surface,
         body: SafeArea(
           child: Column(
             children: [
               // The top two-thirds of the screen is a ListView
               Expanded(
                 flex: 2,
-                child: ListView.builder(
-                  itemCount: 1,
-                  itemBuilder: (context, index) {
-                    return buildCeiptItemWithPeople(
-                        appState.getCeipt(appState.activeCeiptId));
-                  },
-                ),
+                child: Padding(
+                    padding:
+                        const EdgeInsets.all(16.0), // Set the padding amount
+                    child: Container(
+                        decoration: BoxDecoration(
+                          color: customThemeData.colorScheme
+                              .secondary, // Set the background color
+                          borderRadius: BorderRadius.circular(
+                              12.0), // Set the corner radius
+                        ),
+                        child: ListView.builder(
+                          itemCount: 1,
+                          reverse: true,
+                          itemBuilder: (context, index) {
+                            return buildCeiptItemWithPeople(
+                                appState.getCeipt(appState.activeCeiptId));
+                          },
+                        ))),
               ),
               // The bottom third of the screen is a GridView
               buildPersonSection(),

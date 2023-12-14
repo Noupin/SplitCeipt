@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:split_ceipt/Helpers/Color.dart';
+import 'package:split_ceipt/Theme.dart';
 
 // First Party Imports
 import '../State/State.dart';
@@ -318,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('Flutter Demo'),
+        backgroundColor: customThemeData.colorScheme.surface,
         actions: [
           IconButton(
             icon: Icon(Icons.brightness_4),
