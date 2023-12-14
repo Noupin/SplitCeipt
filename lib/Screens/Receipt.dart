@@ -86,127 +86,130 @@ class _ReceiptScreenState extends State<ReceiptScreen>
     }
 
     // Return a list tile widget with the receipt details
-    return Column(
-      key: Key(filteredIds.toString()),
-      children: [
-        for (ItemModel item in (filterPeopleByItem.isNotEmpty
-            ? filteredItems
-            : ceipt.items)) // Add a closing parenthesis here
-          // Use a column widget to display the item name and the people circles
-          Dismissible(
-            key: Key(item.id),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              child: Icon(Icons.delete, color: Colors.white),
-            ),
-            onDismissed: (direction) => {
-              ceipt.removeItemById(item.id),
-              appState.removeItem(ceipt.id, item.id),
-              getInitials(),
-            },
-            child: Container(
-                padding: const EdgeInsets.all(2.0),
-                margin: const EdgeInsets.fromLTRB(
-                    10, 2, 10, 2), // Set the padding amount
-                decoration: BoxDecoration(
-                  color: filteredItems
-                          .map((element) => element.id)
-                          .contains(item.id)
-                      ? Colors.transparent
-                      : Colors.black.withOpacity(0.35),
-                  borderRadius:
-                      BorderRadius.circular(12.0), // Set the corner radius
+    return Container(
+        margin: EdgeInsets.only(bottom: 10, top: 10),
+        key: Key(filteredIds.toString()),
+        child: Column(
+          children: [
+            for (ItemModel item in (filterPeopleByItem.isNotEmpty
+                ? filteredItems
+                : ceipt.items)) // Add a closing parenthesis here
+              // Use a column widget to display the item name and the people circles
+              Dismissible(
+                key: Key(item.id),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  child: Icon(Icons.delete, color: Colors.white),
                 ),
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      // Use a text widget to display the item name
-                      Text(item.name),
-                      Expanded(child: Container()),
-                      // Use a wrap widget to display the people circles
-                      Wrap(
+                onDismissed: (direction) => {
+                  ceipt.removeItemById(item.id),
+                  appState.removeItem(ceipt.id, item.id),
+                  getInitials(),
+                },
+                child: Container(
+                    padding: const EdgeInsets.all(2.0),
+                    margin: const EdgeInsets.fromLTRB(
+                        10, 2, 10, 2), // Set the padding amount
+                    decoration: BoxDecoration(
+                      color: filteredItems
+                              .map((element) => element.id)
+                              .contains(item.id)
+                          ? Colors.transparent
+                          : Colors.white.withOpacity(0.35),
+                      borderRadius:
+                          BorderRadius.circular(12.0), // Set the corner radius
+                    ),
+                    child: ListTile(
+                      title: Row(
                         children: [
-                          // Loop through each person in the item
-                          for (PersonModel person in item.people)
-                            // Use a container widget to create a circle with the person's initials
-                            Container(
-                              key: ValueKey(person.id),
-                              // Add some margin around the circle
-                              margin: EdgeInsets.all(4.0),
-                              // Set the width and height to 24 pixels
-                              width: 35.0,
-                              height: 35.0,
-                              // Set the decoration to customize the shape and color of the circle
-                              decoration: BoxDecoration(
-                                // Set the shape to circle
-                                shape: BoxShape.circle,
-                                // Set the color to an accent color
-                                color: filteredItems
-                                        .map((element) => element.id)
-                                        .contains(item.id)
-                                    ? person.color
-                                    : desaturate(person.color, 0.4, 0.5),
-                              ),
-                              // Use a center widget to align the text widget inside the circle
-                              child: Center(
-                                // Use a text widget to display the person's initials
-                                child: Text(
-                                  // Get the first and last characters of the person's name and capitalize them
-                                  person.getInitials(),
-                                  // Set the style to white and small font size
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12.0,
+                          // Use a text widget to display the item name
+                          Text(item.name),
+                          Expanded(child: Container()),
+                          // Use a wrap widget to display the people circles
+                          Wrap(
+                            children: [
+                              // Loop through each person in the item
+                              for (PersonModel person in item.people)
+                                // Use a container widget to create a circle with the person's initials
+                                Container(
+                                  key: ValueKey(person.id),
+                                  // Add some margin around the circle
+                                  margin: EdgeInsets.all(4.0),
+                                  // Set the width and height to 24 pixels
+                                  width: 35.0,
+                                  height: 35.0,
+                                  // Set the decoration to customize the shape and color of the circle
+                                  decoration: BoxDecoration(
+                                    // Set the shape to circle
+                                    shape: BoxShape.circle,
+                                    // Set the color to an accent color
+                                    color: filteredItems
+                                            .map((element) => element.id)
+                                            .contains(item.id)
+                                        ? person.color
+                                        : desaturate(person.color, 0.4, 0.5),
+                                  ),
+                                  // Use a center widget to align the text widget inside the circle
+                                  child: Center(
+                                    // Use a text widget to display the person's initials
+                                    child: Text(
+                                      // Get the first and last characters of the person's name and capitalize them
+                                      person.getInitials(),
+                                      // Set the style to white and small font size
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12.0,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ),
+                            ],
+                          ),
                         ],
                       ),
-                    ],
-                  ),
-                  onTap: () {
-                    if (filterPeopleByItem.isEmpty ||
-                        !item.id.contains(filterPeopleByItem)) {
-                      if (filterItemsByPerson.isNotEmpty) {
-                        print(filterItemsByPerson);
-                        if (!filteredItems
-                            .map((element) => element.id)
-                            .contains(item.id)) {
-                          setState(() {
-                            appState
-                                .getCeipt(appState.activeCeiptId)
-                                .items
-                                .where((element) => element.id == item.id)
-                                .first
-                                .addPerson(
-                                    appState.getPerson(filterItemsByPerson));
-                          });
+                      onTap: () {
+                        if (filterPeopleByItem.isEmpty ||
+                            !item.id.contains(filterPeopleByItem)) {
+                          if (filterItemsByPerson.isNotEmpty) {
+                            print(filterItemsByPerson);
+                            if (!filteredItems
+                                .map((element) => element.id)
+                                .contains(item.id)) {
+                              setState(() {
+                                appState
+                                    .getCeipt(appState.activeCeiptId)
+                                    .items
+                                    .where((element) => element.id == item.id)
+                                    .first
+                                    .addPerson(appState
+                                        .getPerson(filterItemsByPerson));
+                              });
+                            } else {
+                              setState(() {
+                                appState
+                                    .getCeipt(appState.activeCeiptId)
+                                    .items
+                                    .where((element) => element.id == item.id)
+                                    .first
+                                    .removePersonById(appState
+                                        .getPerson(filterItemsByPerson)
+                                        .id);
+                              });
+                            }
+                            return;
+                          }
+                          setState(() => filterPeopleByItem = item.id);
                         } else {
-                          setState(() {
-                            appState
-                                .getCeipt(appState.activeCeiptId)
-                                .items
-                                .where((element) => element.id == item.id)
-                                .first
-                                .removePersonById(
-                                    appState.getPerson(filterItemsByPerson).id);
-                          });
+                          setState(() => filterPeopleByItem = "");
                         }
-                        return;
-                      }
-                      setState(() => filterPeopleByItem = item.id);
-                    } else {
-                      setState(() => filterPeopleByItem = "");
-                    }
-                    filterPeopleByItems();
-                  },
-                )),
-          )
-      ],
-    );
+                        filterPeopleByItems();
+                      },
+                    )),
+              )
+          ],
+        ));
   }
 
   // A function that returns a card widget for a person
@@ -264,9 +267,9 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                                         person.getInitials(),
                                         // Set the style of the text widget to white and large font size
                                         style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 40.0,
-                                        ),
+                                            color: Colors.white,
+                                            fontSize: 26.0,
+                                            fontWeight: FontWeight.normal),
                                       ),
                                     ),
                                     // Add a text widget as the second child of the column
