@@ -117,56 +117,68 @@ class _ReceiptScreenState extends State<ReceiptScreen>
                               .map((element) => element.id)
                               .contains(item.id)
                           ? Colors.transparent
-                          : Colors.white.withOpacity(0.35),
+                          : Colors.black.withOpacity(0.4),
                       borderRadius:
                           BorderRadius.circular(12.0), // Set the corner radius
                     ),
                     child: ListTile(
-                      title: Row(
+                      title: Column(
+                        mainAxisSize:
+                            MainAxisSize.min, // Set the main axis size to min
                         children: [
-                          // Use a text widget to display the item name
-                          Text(item.name),
-                          Expanded(child: Container()),
-                          // Use a wrap widget to display the people circles
-                          Wrap(
-                            children: [
-                              // Loop through each person in the item
-                              for (PersonModel person in item.people)
-                                // Use a container widget to create a circle with the person's initials
-                                Container(
-                                  key: ValueKey(person.id),
-                                  // Add some margin around the circle
-                                  margin: EdgeInsets.all(4.0),
-                                  // Set the width and height to 24 pixels
-                                  width: 35.0,
-                                  height: 35.0,
-                                  // Set the decoration to customize the shape and color of the circle
-                                  decoration: BoxDecoration(
-                                    // Set the shape to circle
-                                    shape: BoxShape.circle,
-                                    // Set the color to an accent color
-                                    color: filteredItems
-                                            .map((element) => element.id)
-                                            .contains(item.id)
-                                        ? person.color
-                                        : desaturate(person.color, 0.4, 0.5),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Use a text widget to display the item name
+                                Text("${item.name} | \$${item.cost}"),
+                                // Use a sized box widget to wrap the wrap widget
+                                SizedBox(
+                                  width: (35.0 + 8.0) * 3 +
+                                      8.0, // Set the width to fit 3 people circles
+                                  child: Wrap(
+                                    runSpacing: 8.0, // Set the run spacing
+                                    children: [
+                                      // Loop through each person in the item
+                                      for (PersonModel person in item.people)
+                                        // Use a container widget to create a circle with the person's initials
+                                        Container(
+                                          key: ValueKey(person.id),
+                                          // Add some margin around the circle
+                                          margin: EdgeInsets.all(4.0),
+                                          // Set the width and height to 24 pixels
+                                          width: 35.0,
+                                          height: 35.0,
+                                          // Set the decoration to customize the shape and color of the circle
+                                          decoration: BoxDecoration(
+                                            // Set the shape to circle
+                                            shape: BoxShape.circle,
+                                            // Set the color to an accent color
+                                            color: filteredItems
+                                                    .map(
+                                                        (element) => element.id)
+                                                    .contains(item.id)
+                                                ? person.color
+                                                : desaturate(
+                                                    person.color, 0.4, 0.5),
+                                          ),
+                                          // Use a center widget to align the text widget inside the circle
+                                          child: Center(
+                                            // Use a text widget to display the person's initials
+                                            child: Text(
+                                              // Get the first and last characters of the person's name and capitalize them
+                                              person.getInitials(),
+                                              // Set the style to white and small font size
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
-                                  // Use a center widget to align the text widget inside the circle
-                                  child: Center(
-                                    // Use a text widget to display the person's initials
-                                    child: Text(
-                                      // Get the first and last characters of the person's name and capitalize them
-                                      person.getInitials(),
-                                      // Set the style to white and small font size
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 12.0,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                                )
+                              ])
                         ],
                       ),
                       onTap: () {
